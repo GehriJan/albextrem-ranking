@@ -17,7 +17,7 @@ class Rider:
         self.time = time
         self.distance = distance
     def __repr__(self) -> str:
-        return f"Name: {self.name}\t\tDistance: {self.distance}km Time: {self.time}h"
+        return f"Name: {self.name}\t\tDistance: {self.distance}km Time: {self.time}h Velocity: {self.getVelocity()}km/h"
     def getHours(self) -> float:
         times = re.findall("\d\d", self.time)
         hours = int(times[0])
