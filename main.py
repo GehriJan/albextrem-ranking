@@ -48,8 +48,8 @@ def getRider(id: int) -> Optional[Rider]:
         lines = text.splitlines()
         
         name = lines[0].strip()
-        if  re.findall("... km", lines[len(lines)-2])==0 or\
-            re.findall("\d\d:\d\d:\d\d", lines[len(lines)-1])==0:
+        if  len(re.findall("... km", lines[len(lines)-2]))==0 or\
+            len(re.findall("\d\d:\d\d:\d\d", lines[len(lines)-1]))==0:
             exceptions.append(id)
             return None
         distanceLine = re.findall("... km", lines[len(lines)-2])[0]
@@ -77,8 +77,6 @@ except getopt.GetoptError as err:
     print(sys.argv[0],":", err)
     sys.exit(1)
 
-
-
 processOptions(opts)
 riders: list[Rider] = []
 ids = read_numbers_from_file("riders.txt")
@@ -88,7 +86,29 @@ for id in ids:
     if rider is not None:
         riders.append(rider)
     print(rider)
-riders = sorted(riders, key=lambda sub: (-rider.distance, rider.getHours()))
+riders = sorted(riders, key=lambda rider: (-rider.distance, rider.getHours()))
+output = "Nummer,Name,Distanz,Zeit,Geschwindigkeit\n"
+riderCtr = {
+    "90": 0,
+    "170": 0,
+    "220": 0,
+    "270": 0,
+    "310": 0
+}
+currentDistance = 0
+formerDistance = 0
+i = 0
 for rider in riders:
-    print(rider)
-print(exceptions)
+    if formerDistance == rider.distance:
+        i+=1
+    else:
+        i=1
+    output+=f"{i},{rider.name};{rider.distance};{rider.time};{rider.getVelocity()}\n"
+    riderCtr[str(rider.distance)]+=1
+    formerDistance = rider.distance
+output = output.replace(".",",")
+with open("albextremOutput.csv", "w") as outputFile:
+        outputFile.write(output)
+        outputFile.close()
+print(f"In List: {riderCtr['90']+riderCtr['170']+riderCtr['220']+riderCtr["270"]+riderCtr['310']}")
+print(f"Not in list: {len(exceptions)}")
