@@ -67,17 +67,9 @@ def read_numbers_from_file(filename):
     with open(filename, 'r') as file:
         numbers = [int(line.strip()) for line in file if line.strip().isdigit()]
     return numbers
-if __name__ == "__main__":
-    riders: list[Rider] = []
-    ids = read_numbers_from_file("riders.txt")
-    exceptions = []
-    for id in ids:
-        rider = getRider(id)
-        if rider is not None:
-            riders.append(rider)
-        print(rider)
-    riders = sorted(riders, key=lambda rider: (-rider.distance, rider.getHours()))
-    output = "Nummer,Name,Distanz,Zeit,Geschwindigkeit\n"
+
+def writeCsv(riders):
+    output = "Nummer;Name;Distanz;Zeit;Geschwindigkeit\n"
     riderCtr = {
         "90": 0,
         "170": 0,
@@ -85,14 +77,9 @@ if __name__ == "__main__":
         "270": 0,
         "310": 0
     }
-    currentDistance = 0
-    formerDistance = 0
-    i = 0
+    i, formerDistance = 0
     for rider in riders:
-        if formerDistance == rider.distance:
-            i+=1
-        else:
-            i=1
+        i = i+1 if formerDistance==rider.distance else 1
         output+=f"{i},{rider.name};{rider.distance};{rider.time};{rider.getVelocity()}\n"
         riderCtr[str(rider.distance)]+=1
         formerDistance = rider.distance
@@ -100,5 +87,12 @@ if __name__ == "__main__":
     with open("albextremOutput.csv", "w") as outputFile:
             outputFile.write(output)
             outputFile.close()
-    print(f"In List: {riderCtr['90']+riderCtr['170']+riderCtr['220']+riderCtr["270"]+riderCtr['310']}")
-    print(f"Not in list: {len(exceptions)}")
+    
+if __name__ == "__main__":
+    riders: list[Rider] = []
+    ids = read_numbers_from_file("riders.txt")
+    riders = map(getRider, ids)
+    # (count?) and remove None values here
+    totalSum = len(riders)
+    riders = sorted(riders, key=lambda rider: (-rider.distance, rider.getHours()))
+    writeCsv(riders)
